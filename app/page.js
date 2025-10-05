@@ -69,13 +69,13 @@ export default function Home() {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Track Your Fitness
-            <span className="text-black"> Journey</span>
+            Join the GrindX
+            <span className="text-black"> Community</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Create workouts, log your progress, and achieve your fitness goals with FitTrack. 
-            Join a community of fitness enthusiasts and stay motivated on your journey.
+            Create workouts, share your progress, and get inspired by others in the GrindX fitness community. 
+            Track your journey and motivate others along the way.
           </p>
           
           {!user && !isLoading && (
@@ -93,20 +93,20 @@ export default function Home() {
             </div>
           )}
           
-          {user && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/workouts">
-                <Button size="lg" className="text-lg px-8 py-6">
-                  View Workouts
-                </Button>
-              </Link>
-              <Link href="/logs">
-                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                  My Logs
-                </Button>
-              </Link>
-            </div>
-          )}
+              {user && (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Link href="/feed">
+                    <Button size="lg" className="text-lg px-8 py-6">
+                      Explore Community
+                    </Button>
+                  </Link>
+                  <Link href="/logs">
+                    <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                      My Logs
+                    </Button>
+                  </Link>
+                </div>
+              )}
         </div>
       </section>
 
@@ -118,7 +118,7 @@ export default function Home() {
               Everything You Need to Succeed
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              FitTrack provides all the tools you need to create, track, and achieve your fitness goals.
+              GrindX provides all the tools you need to create, track, and share your fitness journey with a supportive community.
             </p>
           </div>
 
@@ -131,7 +131,7 @@ export default function Home() {
                 <CardTitle>Create Workouts</CardTitle>
                 <CardDescription>
                   Build custom workout routines with sets, reps, and categories. 
-                  Share your workouts with the community or keep them private.
+                  Share your workouts with the community and inspire others.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -144,7 +144,7 @@ export default function Home() {
                 <CardTitle>Log Progress</CardTitle>
                 <CardDescription>
                   Track your workout sessions with duration, notes, and completion dates. 
-                  Keep a detailed history of your fitness journey.
+                  Share your progress with the community and get motivated by others.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -157,7 +157,7 @@ export default function Home() {
                 <CardTitle>Track Progress</CardTitle>
                 <CardDescription>
                   Monitor your fitness progress over time. View your workout history 
-                  and see how you&apos;re improving day by day.
+                  and see how you&apos;re improving day by day with community support.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -169,8 +169,8 @@ export default function Home() {
                 </div>
                 <CardTitle>Community</CardTitle>
                 <CardDescription>
-                  Discover workouts created by other fitness enthusiasts. 
-                  Get inspired and share your own routines with the community.
+                  Discover workouts and progress shared by other fitness enthusiasts. 
+                  Get inspired, share your own routines, and build connections.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -208,10 +208,10 @@ export default function Home() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Start Your Fitness Journey?
+            Ready to Join the GrindX Community?
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Join thousands of users who are already tracking their progress with FitTrack.
+            Join thousands of users who are already sharing their fitness journey with GrindX.
           </p>
           {!user && (
             <Link href="/register">
@@ -222,9 +222,9 @@ export default function Home() {
           )}
           
           {user && (
-            <Link href="/workouts">
+            <Link href="/feed">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-                Start Working Out
+                Explore Community
               </Button>
             </Link>
           )}

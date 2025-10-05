@@ -11,7 +11,8 @@ import {
   X, 
   Dumbbell, 
   Calendar,
-  BarChart3
+  BarChart3,
+  Users
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -74,7 +75,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Dumbbell className="h-8 w-8 text-black" />
-              <span className="text-xl font-bold text-gray-900">FitTrack</span>
+              <span className="text-xl font-bold text-gray-900">GrindX</span>
             </Link>
           </div>
 
@@ -82,6 +83,13 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             {user ? (
               <>
+                <Link 
+                  href="/feed" 
+                  className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors"
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Feed</span>
+                </Link>
                 <Link 
                   href="/workouts" 
                   className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors"
@@ -143,6 +151,14 @@ export default function Navbar() {
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t">
               {user ? (
                 <>
+                  <Link
+                    href="/feed"
+                    className="flex items-center space-x-2 text-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Feed</span>
+                  </Link>
                   <Link
                     href="/workouts"
                     className="flex items-center space-x-2 text-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"

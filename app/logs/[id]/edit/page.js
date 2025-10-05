@@ -7,13 +7,14 @@ import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
 import { Textarea } from '../../../../components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../../components/ui/card';
-import { ArrowLeft, Loader2, Calendar } from 'lucide-react';
+import { ArrowLeft, Loader2, Calendar, Share2 } from 'lucide-react';
 
 export default function EditLogPage() {
   const [formData, setFormData] = useState({
     completedAt: '',
     duration: '',
     notes: '',
+    isShared: false,
   });
   const [workout, setWorkout] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,6 +64,7 @@ export default function EditLogPage() {
           completedAt: new Date(log.completedAt).toISOString().slice(0, 16),
           duration: log.duration.toString(),
           notes: log.notes || '',
+          isShared: log.isShared || false,
         });
       } else {
         router.push('/logs');
@@ -121,6 +123,7 @@ export default function EditLogPage() {
           completedAt: new Date(formData.completedAt).toISOString(),
           duration: parseInt(formData.duration),
           notes: formData.notes,
+          isShared: formData.isShared,
         }),
       });
 
@@ -240,6 +243,26 @@ export default function EditLogPage() {
                   placeholder="How did the workout feel? Any observations or notes..."
                   rows={4}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isShared"
+                    name="isShared"
+                    checked={formData.isShared}
+                    onChange={(e) => setFormData({ ...formData, isShared: e.target.checked })}
+                    className="rounded border-gray-300 text-black focus:ring-black"
+                  />
+                  <Label htmlFor="isShared" className="flex items-center space-x-2">
+                    <Share2 className="h-4 w-4" />
+                    <span>Share with the community</span>
+                  </Label>
+                </div>
+                <p className="text-sm text-gray-500">
+                  When shared, your workout log will be visible to other GrindX users in the community feed.
+                </p>
               </div>
 
               <div className="flex gap-4 pt-4">

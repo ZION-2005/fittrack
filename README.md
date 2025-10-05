@@ -1,6 +1,6 @@
-# FitTrack - Personal Fitness Routine Tracker
+# GrindX - Social Fitness Community
 
-FitTrack is a modern web application built with Next.js, MongoDB, and Shadcn UI that helps users track their fitness routines, create workout plans, and monitor their progress over time.
+GrindX is a modern social fitness tracking web application built with Next.js, MongoDB, and Shadcn UI that helps users track their fitness routines, share their progress, and get inspired by the community.
 
 ## Features
 
@@ -18,15 +18,23 @@ FitTrack is a modern web application built with Next.js, MongoDB, and Shadcn UI 
 - Share workouts with the community
 - Edit and delete your own workouts
 
+### 🌟 Social Features
+- **Community Feed**: View shared workout logs from other users
+- **Share Progress**: Choose to share your workout logs with the community
+- **Like & Interact**: Like and engage with other users' posts
+- **Privacy Controls**: Keep personal logs private or share with the community
+- **Search & Discover**: Find workouts and progress from other users
+
 ### 📊 Progress Tracking
 - Log completed workouts with duration and notes
 - Track workout history and progress
 - View personal workout statistics
 - Keep detailed notes about each session
+- Share achievements with the community
 
 ### 🎨 Modern UI/UX
 - Beautiful, responsive design with Shadcn UI
-- Dark/light mode support
+- Black color scheme for a modern look
 - Mobile-first approach
 - Intuitive navigation and user experience
 
@@ -52,7 +60,7 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd fittrack
+   cd grindx
    ```
 
 2. **Install dependencies**
@@ -69,14 +77,13 @@ Before you begin, ensure you have the following installed:
    Update the `.env` file with your configuration:
    ```env
    # Database
-   MONGODB_URI=mongodb://localhost:27017/fittrack
+   MONGODB_URI=mongodb://localhost:27017/grindx
    
    # Authentication
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your-secret-key-here
-   
-   # JWT Secret
    JWT_SECRET=your-jwt-secret-here
+   
+   # API
+   NEXT_PUBLIC_API_URL=http://localhost:3000/api
    ```
 
 4. **Start MongoDB**
@@ -100,12 +107,13 @@ Before you begin, ensure you have the following installed:
 ## Project Structure
 
 ```
-fittrack/
+grindx/
 ├── app/                    # Next.js app directory
 │   ├── api/               # API routes
 │   │   ├── auth/          # Authentication endpoints
 │   │   ├── workouts/      # Workout CRUD operations
 │   │   └── logs/          # Workout log operations
+│   ├── feed/              # Community feed page
 │   ├── login/             # Login page
 │   ├── register/          # Registration page
 │   ├── workouts/          # Workout pages
@@ -125,7 +133,7 @@ fittrack/
 ├── models/                # MongoDB models
 │   ├── User.js            # User model
 │   ├── Workout.js         # Workout model
-│   └── Log.js             # Log model
+│   └── Log.js             # Log model with social features
 ├── public/                # Static assets
 └── env.example            # Environment variables template
 ```
@@ -152,6 +160,22 @@ fittrack/
 - `GET /api/logs/[id]` - Get a specific log entry
 - `PUT /api/logs/[id]` - Update a log entry
 - `DELETE /api/logs/[id]` - Delete a log entry
+- `GET /api/logs/shared` - Get shared logs for community feed
+- `POST /api/logs/[id]/like` - Like/unlike a shared log
+
+## Social Features
+
+### Community Feed
+- View shared workout logs from other users
+- Like and interact with posts
+- Search through shared content
+- Get inspired by others' progress
+
+### Privacy Controls
+- Choose to share or keep logs private
+- Personal logs remain private by default
+- Shared logs appear in community feed
+- Full control over what you share
 
 ## Usage
 
@@ -160,12 +184,15 @@ fittrack/
 2. **Login**: Sign in to access your dashboard
 3. **Create Workouts**: Build custom workout routines with sets, reps, and categories
 4. **Log Workouts**: Track your completed workouts with duration and notes
-5. **Monitor Progress**: View your workout history and track your fitness journey
+5. **Share Progress**: Choose to share your achievements with the community
+6. **Explore Feed**: Discover and get inspired by other users' progress
 
 ### Key Features
 - **Community Workouts**: Browse and use workouts created by other users
+- **Social Sharing**: Share your workout progress with the GrindX community
 - **Personal Logs**: Keep detailed records of your workout sessions
 - **Progress Tracking**: Monitor your fitness progress over time
+- **Community Interaction**: Like and engage with other users' posts
 - **Responsive Design**: Access your fitness data on any device
 
 ## Contributing
@@ -189,15 +216,17 @@ If you encounter any issues or have questions, please:
 
 ## Future Enhancements
 
-- [ ] Workout templates and presets
-- [ ] Social features (following users, workout sharing)
+- [ ] Comments on shared posts
+- [ ] User following system
+- [ ] Workout challenges and competitions
 - [ ] Progress charts and analytics
 - [ ] Mobile app development
 - [ ] Integration with fitness trackers
 - [ ] Workout reminders and notifications
 - [ ] Nutrition tracking integration
 - [ ] Advanced workout scheduling
+- [ ] Achievement badges and rewards
 
 ---
 
-**Happy Fitness Tracking! 💪**
+**Join the GrindX Community! 💪🌟**

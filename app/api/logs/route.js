@@ -1,25 +1,17 @@
 import { NextResponse } from 'next/server';
 import connectDB from '../../../lib/mongodb';
 import Log from '../../../models/Log';
-import { getUserFromToken } from '../../../lib/auth';
+import { verifyTokenFromRequest } from '../../../lib/auth';
 
 export async function GET(request) {
   try {
     await connectDB();
 
-    const token = request.cookies.get('auth-token')?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    const user = await getUserFromToken(token);
+    // Verify authentication
+    const user = await verifyTokenFromRequest(request);
     if (!user) {
       return NextResponse.json(
-        { error: 'Invalid or expired token' },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
@@ -28,16 +20,28 @@ export async function GET(request) {
     const page = parseInt(searchParams.get('page')) || 1;
     const limit = parseInt(searchParams.get('limit')) || 10;
     const skip = (page - 1) * limit;
+    const shared = searchParams.get('shared') === 'true';
 
-    // Get user's logs with pagination
-    const logs = await Log.find({ userId: user._id })
+    let query, total;
+    
+    if (shared) {
+      // Get shared logs from all users
+      query = { isShared: true };
+      total = await Log.countDocuments(query);
+    } else {
+      // Get user's own logs
+      query = { userId: user._id };
+      total = await Log.countDocuments(query);
+    }
+
+    // Get logs with pagination
+    const logs = await Log.find(query)
       .populate('workoutId', 'name category sets reps')
+      .populate('userId', 'name email')
+      .populate('likes', 'name')
       .sort({ completedAt: -1 })
       .skip(skip)
       .limit(limit);
-
-    // Get total count for pagination
-    const total = await Log.countDocuments({ userId: user._id });
 
     return NextResponse.json({
       logs,
@@ -61,24 +65,16 @@ export async function POST(request) {
   try {
     await connectDB();
 
-    const token = request.cookies.get('auth-token')?.value;
-
-    if (!token) {
+    // Verify authentication
+    const user = await verifyTokenFromRequest(request);
+    if (!user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
-    const user = await getUserFromToken(token);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
-    }
-
-    const { workoutId, completedAt, duration, notes } = await request.json();
+    const { workoutId, completedAt, duration, notes, isShared } = await request.json();
 
     // Validation
     if (!workoutId || !completedAt || !duration) {
@@ -95,6 +91,7 @@ export async function POST(request) {
       completedAt: new Date(completedAt),
       duration,
       notes: notes || '',
+      isShared: isShared || false,
     });
 
     // Populate the workout field

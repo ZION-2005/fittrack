@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "FitTrack - Your Personal Fitness Companion",
-  description: "Track your workouts, log your progress, and achieve your fitness goals with FitTrack.",
+  title: "GrindX - Your Social Fitness Community",
+  description: "Track your workouts, share your progress, and get inspired by others in the GrindX fitness community.",
 };
 
 export default function RootLayout({ children }) {

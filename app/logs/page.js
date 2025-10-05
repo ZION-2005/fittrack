@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import DeleteDialog from '../../components/ui/delete-dialog';
-import { Calendar, Plus, Edit, Trash2, Dumbbell, Clock } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, Dumbbell, Clock, Share2 } from 'lucide-react';
 
 export default function LogsPage() {
   const [logs, setLogs] = useState([]);
@@ -247,6 +247,16 @@ export default function LogsPage() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Shared Status Indicator */}
+                  {log.isShared && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <Share2 className="h-4 w-4 text-black" />
+                        <span className="font-medium">Shared with community</span>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

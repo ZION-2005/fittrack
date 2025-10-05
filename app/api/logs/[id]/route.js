@@ -90,7 +90,7 @@ export async function PUT(request, { params }) {
       );
     }
 
-    const { completedAt, duration, notes } = await request.json();
+    const { completedAt, duration, notes, isShared } = await request.json();
 
     // Update log entry
     const updatedLog = await Log.findByIdAndUpdate(
@@ -99,6 +99,7 @@ export async function PUT(request, { params }) {
         ...(completedAt && { completedAt: new Date(completedAt) }),
         ...(duration && { duration }),
         ...(notes !== undefined && { notes }),
+        ...(isShared !== undefined && { isShared }),
       },
       { new: true }
     ).populate('workoutId', 'name category sets reps');
