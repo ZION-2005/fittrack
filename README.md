@@ -101,8 +101,43 @@ Before you begin, ensure you have the following installed:
    npm run dev
    ```
 
-6. **Open your browser**
+6. **Seed the database with sample data (Optional)**
+   ```bash
+   npm run seed
+   ```
+   This will populate your database with:
+   - 8 sample users (password: `password123`)
+   - 41 different workout routines
+   - 169 workout logs with realistic data
+   - 94 shared logs for the community feed
+
+7. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Test Data
+
+If you've run the seed script, you can test the app with these credentials:
+
+**Test User:**
+- Email: `alex.johnson@example.com`
+- Password: `password123`
+
+**All Sample Users (same password):**
+- alex.johnson@example.com
+- sarah.chen@example.com
+- mike.rodriguez@example.com
+- emma.wilson@example.com
+- david.kim@example.com
+- lisa.thompson@example.com
+- james.brown@example.com
+- maria.garcia@example.com
+
+The seed data includes:
+- **8 Users**: Diverse user profiles for testing
+- **41 Workouts**: Various workout types across all categories
+- **169 Logs**: Realistic workout logs spread over 60 days
+- **94 Shared Logs**: Community content for the feed
+- **Realistic Data**: Random notes, durations, and completion times
 
 ## Project Structure
 

@@ -8,7 +8,7 @@ export function middleware(request) {
   const publicRoutes = ['/', '/login', '/register'];
   
   // Protected routes that require authentication
-  const protectedRoutes = ['/workouts', '/logs', '/profile'];
+  const protectedRoutes = ['/workouts', '/logs', '/profile', '/feed'];
 
   // Check if the current path is a protected route
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
@@ -21,11 +21,9 @@ export function middleware(request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If user is authenticated and trying to access login/register pages
-  if (token && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/workouts', request.url));
-  }
-
+  // Only redirect from login/register if we have a valid token
+  // We can't verify the token in middleware, so we'll let the client-side handle this
+  // This prevents issues with invalid/expired tokens
   return NextResponse.next();
 }
 

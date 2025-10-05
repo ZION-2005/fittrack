@@ -1,18 +1,23 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
-import { Users, Share2, Clock, Dumbbell, User } from 'lucide-react';
+import { Users, Share2, Clock, Dumbbell, User, Loader2 } from 'lucide-react';
 
 export default function FeedPage() {
   const [sharedLogs, setSharedLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const observerRef = useRef();
+  const lastLogRef = useRef();
 
   const checkAuth = useCallback(async () => {
     try {
@@ -29,19 +34,67 @@ export default function FeedPage() {
     }
   }, [router]);
 
-  const fetchSharedLogs = useCallback(async () => {
+  const fetchSharedLogs = useCallback(async (page = 1, append = false) => {
     try {
-      const response = await fetch('/api/logs?shared=true');
+      if (page === 1) {
+        setIsLoading(true);
+      } else {
+        setIsLoadingMore(true);
+      }
+
+      const response = await fetch(`/api/logs?shared=true&page=${page}&limit=10`);
       if (response.ok) {
         const data = await response.json();
-        setSharedLogs(data.logs);
+        
+        if (append) {
+          setSharedLogs(prev => [...prev, ...data.logs]);
+        } else {
+          setSharedLogs(data.logs);
+        }
+        
+        setHasMore(data.pagination.page < data.pagination.pages);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Failed to fetch shared logs:', error);
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   }, []);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+          fetchSharedLogs(currentPage + 1, true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observerRef.current = observer;
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [hasMore, isLoadingMore, currentPage, fetchSharedLogs]);
+
+  // Set up observer for last log element
+  useEffect(() => {
+    if (lastLogRef.current && observerRef.current) {
+      observerRef.current.observe(lastLogRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [sharedLogs]);
 
   useEffect(() => {
     checkAuth();
@@ -122,8 +175,12 @@ export default function FeedPage() {
           </Card>
         ) : (
           <div className="space-y-6">
-            {filteredLogs.map((log) => (
-              <Card key={log._id} className="hover:shadow-lg transition-shadow">
+            {filteredLogs.map((log, index) => (
+              <Card 
+                key={log._id} 
+                className="hover:shadow-lg transition-shadow"
+                ref={index === filteredLogs.length - 1 ? lastLogRef : null}
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -176,6 +233,23 @@ export default function FeedPage() {
                 </CardContent>
               </Card>
             ))}
+            
+            {/* Loading more indicator */}
+            {isLoadingMore && (
+              <div className="flex justify-center py-8">
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Loading more posts...</span>
+                </div>
+              </div>
+            )}
+            
+            {/* End of feed indicator */}
+            {!hasMore && filteredLogs.length > 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">You&apos;ve reached the end of the feed!</p>
+              </div>
+            )}
           </div>
         )}
       </div>

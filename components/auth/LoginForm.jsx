@@ -20,6 +20,22 @@ export default function LoginForm() {
   const router = useRouter();
 
   useEffect(() => {
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          // User is already logged in, redirect to workouts
+          router.push('/workouts');
+        }
+      } catch (error) {
+        // User is not authenticated, stay on login page
+        console.log('User not authenticated, staying on login page');
+      }
+    };
+
+    checkAuth();
+    
     // Listen for logout event to redirect if user logs out
     const handleLogout = () => {
       router.push('/');

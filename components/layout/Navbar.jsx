@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
 import { 
   User, 
@@ -19,6 +19,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     checkAuth();
@@ -48,9 +49,14 @@ export default function Navbar() {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
+      } else if (response.status === 401) {
+        // User is not authenticated - this is normal, don't log as error
+        setUser(null);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      // Only log network errors, not auth failures
+      console.error('Network error during auth check:', error);
+      setUser(null);
     }
   };
 
@@ -85,28 +91,44 @@ export default function Navbar() {
               <>
                 <Link 
                   href="/feed" 
-                  className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors"
+                  className={`flex items-center space-x-1 transition-colors ${
+                    pathname === '/feed' 
+                      ? 'text-black font-semibold' 
+                      : 'text-gray-700 hover:text-black'
+                  }`}
                 >
                   <Users className="h-4 w-4" />
                   <span>Feed</span>
                 </Link>
                 <Link 
                   href="/workouts" 
-                  className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors"
+                  className={`flex items-center space-x-1 transition-colors ${
+                    pathname.startsWith('/workouts') 
+                      ? 'text-black font-semibold' 
+                      : 'text-gray-700 hover:text-black'
+                  }`}
                 >
                   <Dumbbell className="h-4 w-4" />
                   <span>Workouts</span>
                 </Link>
                 <Link 
                   href="/logs" 
-                  className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors"
+                  className={`flex items-center space-x-1 transition-colors ${
+                    pathname.startsWith('/logs') 
+                      ? 'text-black font-semibold' 
+                      : 'text-gray-700 hover:text-black'
+                  }`}
                 >
                   <Calendar className="h-4 w-4" />
                   <span>My Logs</span>
                 </Link>
                 <Link 
                   href="/profile" 
-                  className="flex items-center space-x-1 text-gray-700 hover:text-black transition-colors"
+                  className={`flex items-center space-x-1 transition-colors ${
+                    pathname === '/profile' 
+                      ? 'text-black font-semibold' 
+                      : 'text-gray-700 hover:text-black'
+                  }`}
                 >
                   <User className="h-4 w-4" />
                   <span>{user.name}</span>
@@ -153,7 +175,11 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/feed"
-                    className="flex items-center space-x-2 text-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className={`flex items-center space-x-2 block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      pathname === '/feed' 
+                        ? 'text-black font-semibold bg-gray-100' 
+                        : 'text-gray-700 hover:text-black'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Users className="h-4 w-4" />
@@ -161,7 +187,11 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/workouts"
-                    className="flex items-center space-x-2 text-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className={`flex items-center space-x-2 block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      pathname.startsWith('/workouts') 
+                        ? 'text-black font-semibold bg-gray-100' 
+                        : 'text-gray-700 hover:text-black'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Dumbbell className="h-4 w-4" />
@@ -169,7 +199,11 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/logs"
-                    className="flex items-center space-x-2 text-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className={`flex items-center space-x-2 block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      pathname.startsWith('/logs') 
+                        ? 'text-black font-semibold bg-gray-100' 
+                        : 'text-gray-700 hover:text-black'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Calendar className="h-4 w-4" />
@@ -177,7 +211,11 @@ export default function Navbar() {
                   </Link>
                   <Link
                     href="/profile"
-                    className="flex items-center space-x-2 text-gray-700 hover:text-black block px-3 py-2 rounded-md text-base font-medium"
+                    className={`flex items-center space-x-2 block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                      pathname === '/profile' 
+                        ? 'text-black font-semibold bg-gray-100' 
+                        : 'text-gray-700 hover:text-black'
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <User className="h-4 w-4" />

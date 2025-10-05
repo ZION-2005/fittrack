@@ -10,6 +10,8 @@ import { Calendar, Plus, Edit, Trash2, Dumbbell, Clock, Share2 } from 'lucide-re
 export default function LogsPage() {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [user, setUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({
     isOpen: false,
@@ -34,14 +36,17 @@ export default function LogsPage() {
     }
   }, [router]);
 
-  const fetchLogs = useCallback(async () => {
+  const fetchLogs = useCallback(async (page = 1) => {
     try {
-      const response = await fetch('/api/logs');
+      setIsLoading(true);
+      const response = await fetch(`/api/logs?page=${page}&limit=10`);
       if (response.ok) {
         const data = await response.json();
         // Filter out logs with missing workoutId to prevent undefined errors
         const validLogs = data.logs.filter(log => log.workoutId && log.workoutId.name);
         setLogs(validLogs);
+        setTotalPages(data.pagination.pages);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Failed to fetch logs:', error);
@@ -260,6 +265,44 @@ export default function LogsPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchLogs(currentPage - 1)}
+              disabled={currentPage === 1 || isLoading}
+            >
+              Previous
+            </Button>
+            
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => fetchLogs(page)}
+                  disabled={isLoading}
+                  className="w-8 h-8 p-0"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchLogs(currentPage + 1)}
+              disabled={currentPage === totalPages || isLoading}
+            >
+              Next
+            </Button>
           </div>
         )}
 

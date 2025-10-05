@@ -14,6 +14,8 @@ export default function WorkoutsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [user, setUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({
     isOpen: false,
@@ -40,17 +42,22 @@ export default function WorkoutsPage() {
     }
   }, [router]);
 
-  const fetchWorkouts = useCallback(async () => {
+  const fetchWorkouts = useCallback(async (page = 1) => {
     try {
+      setIsLoading(true);
       const params = new URLSearchParams();
       if (selectedCategory !== 'All') {
         params.append('category', selectedCategory);
       }
+      params.append('page', page.toString());
+      params.append('limit', '12');
       
       const response = await fetch(`/api/workouts?${params}`);
       if (response.ok) {
         const data = await response.json();
         setWorkouts(data.workouts);
+        setTotalPages(data.pagination.pages);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Failed to fetch workouts:', error);
@@ -64,9 +71,11 @@ export default function WorkoutsPage() {
     fetchWorkouts();
   }, [checkAuth, fetchWorkouts]);
 
+  // Reset to page 1 when category changes
   useEffect(() => {
-    fetchWorkouts();
-  }, [fetchWorkouts]);
+    setCurrentPage(1);
+    fetchWorkouts(1);
+  }, [selectedCategory, fetchWorkouts]);
 
   const handleDeleteClick = (workoutId, workoutName) => {
     setDeleteDialog({
@@ -262,6 +271,44 @@ export default function WorkoutsPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-2 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchWorkouts(currentPage - 1)}
+              disabled={currentPage === 1 || isLoading}
+            >
+              Previous
+            </Button>
+            
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => fetchWorkouts(page)}
+                  disabled={isLoading}
+                  className="w-8 h-8 p-0"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchWorkouts(currentPage + 1)}
+              disabled={currentPage === totalPages || isLoading}
+            >
+              Next
+            </Button>
           </div>
         )}
 

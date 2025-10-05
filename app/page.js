@@ -46,11 +46,13 @@ export default function Home() {
       if (response.ok) {
         const data = await response.json();
         setUser(data.user);
-      } else {
+      } else if (response.status === 401) {
+        // User is not authenticated - this is normal, don't log as error
         setUser(null);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      // Only log network errors, not auth failures
+      console.error('Network error during auth check:', error);
       setUser(null);
     } finally {
       setIsLoading(false);
