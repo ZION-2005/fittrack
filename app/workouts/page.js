@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import DeleteDialog from '../../components/ui/delete-dialog';
 import { Dumbbell, Plus, Search, Filter, Edit, Trash2, ExternalLink } from 'lucide-react';
 
 export default function WorkoutsPage() {
@@ -14,6 +15,12 @@ export default function WorkoutsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [user, setUser] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    workoutId: null,
+    workoutName: '',
+    isLoading: false,
+  });
   const router = useRouter();
 
   const categories = ['All', 'Legs', 'Arms', 'Cardio', 'Core', 'Back', 'Chest', 'Shoulders', 'Full Body', 'Other'];
@@ -61,26 +68,40 @@ export default function WorkoutsPage() {
     fetchWorkouts();
   }, [fetchWorkouts]);
 
-  const handleDeleteWorkout = async (workoutId) => {
-    if (!confirm('Are you sure you want to delete this workout?')) {
-      return;
-    }
+  const handleDeleteClick = (workoutId, workoutName) => {
+    setDeleteDialog({
+      isOpen: true,
+      workoutId,
+      workoutName,
+      isLoading: false,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteDialog(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const response = await fetch(`/api/workouts/${workoutId}`, {
+      const response = await fetch(`/api/workouts/${deleteDialog.workoutId}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        setWorkouts(workouts.filter(workout => workout._id !== workoutId));
+        setWorkouts(workouts.filter(workout => workout._id !== deleteDialog.workoutId));
+        setDeleteDialog({ isOpen: false, workoutId: null, workoutName: '', isLoading: false });
       } else {
         const data = await response.json();
         alert(data.error || 'Failed to delete workout');
+        setDeleteDialog(prev => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
       console.error('Failed to delete workout:', error);
       alert('An error occurred while deleting the workout');
+      setDeleteDialog(prev => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ isOpen: false, workoutId: null, workoutName: '', isLoading: false });
   };
 
   const filteredWorkouts = workouts.filter(workout =>
@@ -189,7 +210,7 @@ export default function WorkoutsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteWorkout(workout._id)}
+                          onClick={() => handleDeleteClick(workout._id, workout.name)}
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
@@ -243,6 +264,16 @@ export default function WorkoutsPage() {
             ))}
           </div>
         )}
+
+        <DeleteDialog
+          isOpen={deleteDialog.isOpen}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          title="Delete Workout"
+          description="Are you sure you want to delete this workout? This action cannot be undone."
+          itemName={deleteDialog.workoutName}
+          isLoading={deleteDialog.isLoading}
+        />
       </div>
     </div>
   );

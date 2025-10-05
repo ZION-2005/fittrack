@@ -4,12 +4,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import DeleteDialog from '../../components/ui/delete-dialog';
 import { Calendar, Plus, Edit, Trash2, Dumbbell, Clock } from 'lucide-react';
 
 export default function LogsPage() {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    logId: null,
+    logName: '',
+    isLoading: false,
+  });
   const router = useRouter();
 
   const checkAuth = useCallback(async () => {
@@ -32,7 +39,9 @@ export default function LogsPage() {
       const response = await fetch('/api/logs');
       if (response.ok) {
         const data = await response.json();
-        setLogs(data.logs);
+        // Filter out logs with missing workoutId to prevent undefined errors
+        const validLogs = data.logs.filter(log => log.workoutId && log.workoutId.name);
+        setLogs(validLogs);
       }
     } catch (error) {
       console.error('Failed to fetch logs:', error);
@@ -46,26 +55,40 @@ export default function LogsPage() {
     fetchLogs();
   }, [checkAuth, fetchLogs]);
 
-  const handleDeleteLog = async (logId) => {
-    if (!confirm('Are you sure you want to delete this log entry?')) {
-      return;
-    }
+  const handleDeleteClick = (logId, logName) => {
+    setDeleteDialog({
+      isOpen: true,
+      logId,
+      logName,
+      isLoading: false,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    setDeleteDialog(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const response = await fetch(`/api/logs/${logId}`, {
+      const response = await fetch(`/api/logs/${deleteDialog.logId}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        setLogs(logs.filter(log => log._id !== logId));
+        setLogs(logs.filter(log => log._id !== deleteDialog.logId));
+        setDeleteDialog({ isOpen: false, logId: null, logName: '', isLoading: false });
       } else {
         const data = await response.json();
         alert(data.error || 'Failed to delete log');
+        setDeleteDialog(prev => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
       console.error('Failed to delete log:', error);
       alert('An error occurred while deleting the log');
+      setDeleteDialog(prev => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialog({ isOpen: false, logId: null, logName: '', isLoading: false });
   };
 
   const formatDate = (dateString) => {
@@ -174,13 +197,15 @@ export default function LogsPage() {
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-xl">{log.workoutId.name}</CardTitle>
+                      <CardTitle className="text-xl">
+                        {log.workoutId?.name || 'Unknown Workout'}
+                      </CardTitle>
                       <CardDescription className="flex items-center gap-4 mt-2">
                         <span className="inline-block px-2 py-1 bg-gray-100 text-black text-xs rounded-full">
-                          {log.workoutId.category}
+                          {log.workoutId?.category || 'Unknown'}
                         </span>
                         <span className="text-sm text-gray-500">
-                          {log.workoutId.sets} sets × {log.workoutId.reps} reps
+                          {log.workoutId?.sets || 0} sets × {log.workoutId?.reps || 0} reps
                         </span>
                       </CardDescription>
                     </div>
@@ -195,7 +220,7 @@ export default function LogsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteLog(log._id)}
+                        onClick={() => handleDeleteClick(log._id, log.workoutId?.name || 'Unknown Workout')}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
@@ -227,6 +252,16 @@ export default function LogsPage() {
             ))}
           </div>
         )}
+
+        <DeleteDialog
+          isOpen={deleteDialog.isOpen}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          title="Delete Workout Log"
+          description="Are you sure you want to delete this workout log? This action cannot be undone."
+          itemName={deleteDialog.logName}
+          isLoading={deleteDialog.isLoading}
+        />
       </div>
     </div>
   );
